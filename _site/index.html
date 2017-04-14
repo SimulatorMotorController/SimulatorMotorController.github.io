@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width,maximum-scale=2">
+    <meta name="description" content="Simulator Motion Controller : Arduino based Motion Platform Controller">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/style.css?v=df2a89bce60d0d60e3809309c860e6bb2378fd9a">
+
+    <title>Simulator Motion Controller</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/SimulatorMotorController/SMC3">View on GitHub</a>
+
+          <h1 id="project_title">Simulator Motion Controller</h1>
+          <h2 id="project_tagline">Arduino based Motion Platform Controller</h2>
+
+          
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1 id="smc3">SMC3</h1>
+<p>The SMC3 is a “Simulator Motor Controller for 3 Motors” written for the Arduino UNO R3.
+At the time of writing this it has not been tested on any other Arduino model. The SMC3
+uses a PID motor control loop. The PID algorithm has been optimised for this application
+and achieves 4096 PID updates per second for all three motors giving smooth precise motor
+control with well tuned parameters. Some characteristics of the controller:</p>
+
+<ul>
+  <li>Designed specifically for use with Simtools motion control software</li>
+  <li>Controls the position of upto three motors using analogue feedback</li>
+  <li>Hard (reverse) braking if motors move beyond defined limits</li>
+  <li>10bit accuracy (1024 steps) for both “target” position commands and position “feedback”</li>
+  <li>Extensive command set to setup and monitor the parameters for each motor</li>
+  <li>A second serial port for (optional) real time “live” monitoring/configuration</li>
+  <li>4096 PID calculation updates per second for each motor</li>
+  <li>Companion windows software to configure and monitor the SMC3</li>
+  <li>There are currently two MODES of operation that are configured by a single line of
+code at compile time before uploading to the Arduino.</li>
+</ul>
+
+<h3 id="mode1-supports-the-more-common-h-bridges-used-in-the-forums">MODE1: Supports the more common H-Bridges used in the forums.</h3>
+
+<p>This mode has a PWM output pin plus two Motor Direction output pins. Examples include the MonsterMoto shield.</p>
+
+<p><img src="/assets/images/MotoMonster.jpg" alt="MonsterMoto" /></p>
+
+<h3 id="mode2-designed-for-h-bridges-that-require-direct-drive-of-highside-and-lowside-switch-inputs">MODE2: Designed for H-Bridges that require direct drive of Highside and Lowside switch inputs.</h3>
+
+<p>In this mode one switch is driven as a direction pin and the other with the PWM output however the PWM 
+duty needs to be inverted whenever the motor changes direction with the direction pin. (An alternate 
+approach would be to switch the PWM between inputs as direction changes) An example H-Bridge that uses
+this mode is the cheap 43A IBT-2 found on ebay.</p>
+
+<p><img src="/assets/images/IBT-2.jpg" alt="IBT-2" /></p>
+
+<h2 id="software-setup">Software Setup</h2>
+
+<p>As the SMC3 is an Arduino motor controller the first thing you need to do is get the software onto your “Arduino UNO R3”.</p>
+<ul>
+  <li><a href="https://github.com/SimulatorMotorController/SMC3/archive/master.zip">Download the latest SMC3 software</a></li>
+  <li>Get the Arduino IDE tools installed on your computer if you don’t already have them. Follow the <a href="http://arduino.cc/en/Guide/Windows">Arduino Getting Started</a>
+guide (Note the step for installing the drivers!)</li>
+  <li>Open the SMC3.ino with the Arduino IDE</li>
+  <li>Edit the code at the top if the file to select the <em>MODE</em> you will be using</li>
+  <li>Compile and Download the SMC3.ino program to your Arduino UNO R3</li>
+  <li>If you want, you could now test out the <a href="https://github.com/SimulatorMotorController/SMC3Utils">Windows SMC3 Utilities</a>
+software and check communications before proceeding further.</li>
+</ul>
+
+<h2 id="wiring-details">Wiring Details</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>                    +----+              +------+
+                  +-|PWR |--------------| USB  |-----+
+                  | |    |              |      |     |
+                  | +----+              +------+    o|
+                  |                                 o|
+                  |                                 o|AREF
+                  |                                 o|GND
+                NC|o                                o|13    TTL (software) Serial
+             IOREF|o  +----+                        o|12    TTL (software) Serial
+             RESET|o  |    |                        o|11~  PWM Motor 3
+              3.3V|o  |    |                        o|10~  PWM Motor 2
+                5V|o  |    |    Arduino             o|9~    PWM Motor 1
+               GND|o  |    |      UNO               o|8
+               GND|o  |    |                         |
+               VIN|o  |    |                        o|7      Motor 3 ENB
+                  |   |    |                        o|6~    Motor 3 ENA
+   Motor 1 Pot  A0|o  |    |                        o|5~    Motor 2 ENB
+   Motor 2 Pot  A1|o  |    |                        o|4      Motor 2 ENA
+   Motor 3 Pot  A2|o  |    |                        o|3~    Motor 1 ENB
+                A3|o  |    |                        o|2      Motor 1 ENA
+                A4|o  |    |                        o|1
+                A5|o  +-/\-+                        o|0
+                  +-\                      /---------+
+                     \--------------------/
+</code></pre>
+</div>
+
+<p><img src="/assets/images/SMC3Pinout.jpg" alt="SMC3 Pinout" /></p>
+
+<h3 id="mode1">MODE1</h3>
+
+<p>Example wiring details for Monster Motor Board (again thanks to @<a href="https://www.xsimulator.net/community/members/2210/">eaorobbie</a> for drawing)</p>
+
+<p><img src="/assets/images/MotoMonsterSetup.jpg" alt="MotoMonster Setup" /></p>
+
+<h3 id="mode2">MODE2</h3>
+
+<p>Arduino to H-Bridge (Chinese 43A)</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>ENA ----&gt; IN1/RPWM
+ENB --+-&gt; EN1/R_EN
++-&gt; EN2/L_EN (ie connect ENB to both R_EN and L_EN)
+PWM ----&gt; IN2/L_PWM
+n.c. ----&gt; IS1/R_IS
+n.c. ----&gt; IS2/L_IS
++5V ----&gt; VCC
+GND ----&gt; GND
+</code></pre>
+</div>
+
+<p>The image below shows wiring for two motors… Thanks to @<a href="https://www.xsimulator.net/community/members/2210/">eaorobbie</a> for getting me started with the image.</p>
+
+<p><img src="/assets/images/Wiring-2-Motors.jpg" alt="Wiring 2 Motors" /></p>
+
+<h2 id="initial-setup">Initial Setup</h2>
+
+<p>I strongly recommend you follow the steps below if this is the first time you are using SMC3 with your simulator to reduce the risk of damaging anything.</p>
+
+<ol>
+  <li>Disconnect the motor power supply</li>
+  <li>Make sure Simtools is not running – we’re not ready for that yet!</li>
+  <li>Wire up the Arduino (with SMC3 installed) to your H-Bridges and connect to your computer via USB</li>
+  <li>Run the Windows SMC3 Utility software and make sure it communicates with the Arduino (There is no need to set baud rates, they are not configurable)</li>
+  <li>Set the Kp, Ki, Kd, PWMmin, PWMmax, PWMrev to 0 for ALL motors (This will make sure the motors don’t move)</li>
+  <li>Set Clip to 255 (you need to do this first) and Limit to 255 (This will give you plenty of margin if something goes wrong while setting up)</li>
+  <li>Turn on the power to your motors – nothing should move at this stage!</li>
+  <li>Set Kp to about 400</li>
+  <li>Now slowly, increase PWMmax… at some point the motor should start to move. When it does check the “Green” feedback line is moving toward the “Blue” target position.
+    <ul>
+      <li>If it is then that motor and feedback is wired correctly - proceed to test other motors.</li>
+      <li>If it is moving away turn off motor power immediately (or quickly reduce PWMmax again). In this case you need to either reverse the wires to the motor being tested –OR– reverse the +5V and GND wires to your feedback pot for the motor being tested (do not do both). Restart the test from the beginning.</li>
+    </ul>
+  </li>
+  <li>Do the above for each motor</li>
+</ol>
+
+<h2 id="the-second-serial-port">The Second Serial Port</h2>
+
+<p>Temporarily disabled as of v0.63 - Use UDP Mode with SMC3Utils instead.</p>
+
+<h2 id="simtools-setup">Simtools Setup</h2>
+
+<p>Setup for <strong>Simtools 2</strong> is very straight forward:</p>
+
+<p><code class="highlighter-rouge">[A&lt;Axis1a&gt;][B&lt;Axis2a&gt;][C&lt;Axis3a&gt;]</code></p>
+
+<p>Set for <code class="highlighter-rouge">10 bit binary</code> output</p>
+
+<p>Baud rate <code class="highlighter-rouge">500000 , N , 8 , 1</code> (10ms delay)</p>
+
+<h2 id="potentiometer-scaling">Potentiometer Scaling</h2>
+
+<p>Potentiometer Scaling (POT scaling) is an input that can be used to scale the motion output based on the POT position.</p>
+
+<p>The non linear scaling is designed to try and reduce the overall motion but maintain the “smaller” movements as best 
+possible - ie road noise and stuff, but scale back on the huge side to side motion you get in higher power cars.</p>
+
+<ul>
+  <li>POT scaling can be setup as one of two modes - Linear or non-linear</li>
+  <li><strong>DO NOT ENABLE POT SCALING UNLESS POT ATTACHED TO ARDUINO</strong></li>
+  <li>AN5 used for POT scaling input</li>
+</ul>
+
+<p><img src="/assets/images/scaling.jpg" alt="POT scaling" /></p>
+
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        
+        <p class="copyright">Simulator Motion Controller maintained by <a href="http://github.com/SimulatorMotorController">these guys.</a></p>
+        
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+  </body>
+</html>

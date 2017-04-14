@@ -1,2 +1,7 @@
 title: Simulator Motion Controller
+description: Arduino based Motion Platform Controller
+show_downloads: false
 theme: jekyll-theme-slate
+github:
+  repository_url: https://github.com/SimulatorMotorController/SMC3
+  owner_name: these guys.
